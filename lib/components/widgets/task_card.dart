@@ -2,30 +2,34 @@ import 'package:flutter/material.dart';
 
 class TaskCard extends StatelessWidget {
   final String title;
-  final double progress; // 0.0 to 1.0
-  final String timeLeft;
+  final double progress;
   final String assignedBy;
-  final String imageAssetPath;
+  final String timeLeft;
+  final String imageAsset;
+  final int additionalMembers;
 
   const TaskCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.progress,
-    required this.timeLeft,
     required this.assignedBy,
-    required this.imageAssetPath,
-  }) : super(key: key);
+    required this.timeLeft,
+    required this.imageAsset,
+    this.additionalMembers = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final cappedProgress = progress.clamp(0.0, 1.0);
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      // Removed: margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -33,120 +37,227 @@ class TaskCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // Important: Let the column size itself
         children: [
-          // Image with heart icon
+          // Top Image Section
           Stack(
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(18),
-                  topRight: Radius.circular(18),
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
-                child: Image.asset(
-                  imageAssetPath,
-                  height: 160,
+                child: Container(
+                  height: 140, // Reduced height
                   width: double.infinity,
-                  fit: BoxFit.cover,
+                  child: Image.asset(imageAsset, fit: BoxFit.cover),
                 ),
               ),
+
+              // Time left label
               Positioned(
-                top: 10,
-                right: 10,
+                top: 12,
+                left: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    timeLeft,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Heart icon
+              Positioned(
+                top: 12,
+                right: 12,
                 child: Container(
                   padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.favorite_border,
-                    size: 18,
-                    color: Colors.red,
+                    color: Colors.black54,
+                    size: 16,
                   ),
                 ),
               ),
             ],
           ),
 
-          // Title
+          // Content Section
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-
-          // Progress bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: LinearProgressIndicator(
-                value: progress.clamp(0.0, 1.0),
-                minHeight: 8,
-                backgroundColor: Colors.grey.shade300,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.green.shade600,
-                ),
-              ),
-            ),
-          ),
-
-          // Time left
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 6),
-            child: Text(
-              '$timeLeft left',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-
-          // Avatars and Assigned by
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: const EdgeInsets.all(16), // Reduced padding
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Overlapping Avatars
-                SizedBox(
-                  width: 70,
-                  child: Stack(
-                    children: List.generate(3, (index) {
-                      return Positioned(
-                        left: index * 20.0,
-                        child: const CircleAvatar(
-                          radius: 14,
-                          backgroundColor: Colors.grey,
-                          child: Icon(
-                            Icons.person,
-                            size: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                      );
-                    }),
+                // Title
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16, // Reduced font size
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    height: 1.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 12),
+
+                // Progress Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Progress',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${(cappedProgress * 100).toInt()}%',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 6),
+
+                // Progress Bar
+                Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.grey.shade200,
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: cappedProgress,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        color: Colors.green.shade500,
+                      ),
+                    ),
                   ),
                 ),
-                // Assigned by
-                Text(
-                  'Assigned by: $assignedBy',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey,
-                  ),
+
+                const SizedBox(height: 12),
+
+                // Bottom Row - Fixed to prevent overflow
+                Row(
+                  children: [
+                    // Avatar Stack - Fixed width
+                    SizedBox(
+                      height: 24,
+                      width: 80, // Fixed width to prevent overflow
+                      child: Stack(
+                        children: [
+                          // First avatar
+                          Positioned(
+                            left: 0,
+                            child: _buildAvatar(Colors.orange.shade400, 'A'),
+                          ),
+                          // Second avatar
+                          Positioned(
+                            left: 16,
+                            child: _buildAvatar(Colors.blue.shade400, 'B'),
+                          ),
+                          // Third avatar
+                          Positioned(
+                            left: 32,
+                            child: _buildAvatar(Colors.purple.shade400, 'C'),
+                          ),
+                          // Additional members count
+                          if (additionalMembers > 0)
+                            Positioned(
+                              left: 48,
+                              child: _buildAvatar(
+                                Colors.grey.shade600,
+                                '+$additionalMembers',
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // Assigned by section - Flexible to prevent overflow
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.person_outline,
+                            size: 14,
+                            color: Colors.grey.shade500,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              'Assigned by: $assignedBy',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(Color backgroundColor, String text) {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 1.5),
+      ),
+      child: Center(
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 9,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
