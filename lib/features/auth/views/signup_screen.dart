@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notoan/components/widgets/custom_textField.dart';
 import 'package:notoan/components/widgets/rounded_button.dart';
+import 'package:notoan/services/api_service.dart';
 import 'package:notoan/utils/constants/colors.dart';
 import 'package:notoan/utils/constants/fonts.dart';
 
@@ -120,8 +121,36 @@ class _SignupPageState extends State<SignupPage> {
                   horizontalPadding: 120,
                   verticalPadding: 20,
                   text: "Create Account",
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/verifyCode');
+                  onPressed: () async {
+                    final username = usernameController.text.trim();
+                    final email = emailController.text.trim();
+                    final password = passwordController.text.trim();
+
+                    if (username.isEmpty || email.isEmpty || password.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please fill all fields")),
+                      );
+                      return;
+                    }
+
+                    try {
+                      final result = await ApiService.registerUser(
+                        username: username,
+                        email: email,
+                        password: password,
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("✅ ${result['message']}")),
+                      );
+
+                      // Navigate to verify code page after success
+                      Navigator.pushNamed(context, '/verifyCode');
+                    } catch (e) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text("❌ Error: $e")));
+                    }
                   },
                 ),
               ),

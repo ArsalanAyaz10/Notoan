@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:notoan/features/splash/views/splash_screen.dart';
-import 'package:notoan/routes/app_routes.dart';
 import 'package:notoan/routes/route_generator.dart';
 import 'package:notoan/theme/theme.dart';
 

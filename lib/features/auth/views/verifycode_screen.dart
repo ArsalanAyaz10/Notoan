@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:notoan/components/widgets/registerSuccessBottomSheet.dart';
-import 'package:notoan/components/widgets/rounded_button.dart';
 import 'package:notoan/utils/constants/fonts.dart';
 import 'package:flutter_verification_code/flutter_verification_code.dart';
 
